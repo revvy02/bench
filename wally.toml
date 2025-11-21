@@ -1,0 +1,11 @@
+[package]
+name = "revvy02/bench"
+description = "goated benchmarking library for profiling roblox code"
+version = "0.0.0"
+registry = "https://github.com/UpliftGames/wally-index"
+realm = "shared"
+
+exclude = ["**"]
+include = ["src", "src/**", "wally.toml", "default.project.json", "LICENSE"]
+
+[dependencies]

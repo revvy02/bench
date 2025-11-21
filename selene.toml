@@ -1,0 +1,12 @@
+std = "roblox"
+exclude = ["*_packages/**"]
+
+[config]
+include = ["src/**/*.lua", "src/**/*.luau"]
+
+[lints]
+shadowing = "allow"
+empty_if = "allow"
+mixed_table = "allow"
+incorrect_standard_library_use = "allow"
+multiple_statements = "allow"

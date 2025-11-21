@@ -1,0 +1,6 @@
+[tools]
+stylua = "latest"
+"ubi:UpliftGames/wally" = "latest"
+"ubi:Kampfkarren/selene" = "latest"
+"ubi:rojo-rbx/rojo" = "latest"
+"ubi:JohnnyMorganz/luau-lsp" = "latest"
