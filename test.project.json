@@ -1,0 +1,18 @@
+{
+  "name": "bench",
+  "emitLegacyScripts": false,
+  "tree": {
+    "$className": "DataModel",
+    "ReplicatedStorage": {
+        "packages": {
+            "$path": "roblox_packages"
+        },
+        "bench": {
+            "$path": "src/bench"
+        },
+        "jest.config": {
+            "$path": "src/jest.config.luau"
+        }
+    }
+  }
+}

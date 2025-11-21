@@ -1,0 +1,24 @@
+name = "kimpure/chalk_luau"
+version = "0.1.8"
+description = "Roblox/chalk-lua for Luau"
+license = "MIT"
+authors = ["Roblox", "kimpure"]
+repository = "https://github.com/kimpure/chalk-luau"
+private = false
+includes = ["src/**/*.luau", "README.md", "LICENSE.md", "pesde.toml"]
+
+[target]
+environment = "lune"
+lib = "src/lib.luau"
+
+[dev_dependencies.darklua]
+name = "pesde/darklua"
+version = "^0.16.0"
+index = "https://github.com/pesde-pkg/index"
+target = "lune"
+
+[dev_dependencies.multitarget]
+name = "jiwonz/multitarget"
+version = "^0.4.0-rc.30"
+index = "https://github.com/pesde-pkg/index"
+target = "lune"

@@ -4,13 +4,15 @@ A high-performance, composable benchmarking library for Luau with minimal overhe
 
 ## Overview
 
-Bench provides a singleton API similar to `debug.profilebegin()` and `debug.profileend()` but with advanced analysis and topological awareness. It's designed for composable benchmarking with minimal measurement overhead through Structure of Arrays (SoA) design.
+`bench` provides a an api similar to `debug.profilebegin()` and `debug.profileend()`. It marks 
+scopes and allows tracking hierarchical performance traces. It's designed for 
+composable benchmarking with minimal measurement overhead through Structure of Arrays (SoA) design.
 
 **Key Features:**
 - **Composability**: Nest benchmarks and use incremental dumps
-- **Minimal Overhead**: SoA design keeps `mark()` and `done()` fast
+- **Minimal Overhead**: `mark()` and `done()` are extremely fast for usage in hot
 - **Topological Awareness**: Scope-aware hierarchical data extraction
-- **Rich Analysis**: Statistics, percentiles, comparisons, and formatted output
+- **Rich Analysis**: Statistics, percentiles, comparisons, and nicely formatted output
 
 ## Quick Start
 
@@ -19,13 +21,17 @@ local bench = require(path.to.bench)
 
 bench.on()
 
-bench.mark("myFunction")
+bench.mark("function1")
 -- code to benchmark
 bench.done()
 
+bench.mark("function2")
+
+bench.done()
+
 local dump = bench.off()
-local analysis = bench.analyze(dump.myFunction)
-print(bench.format(analysis))
+local analysis = bench.analyze(dump.function1)
+print(bench.cli(analysis)) -- outputs analysis formatted for cli
 ```
 
 ## API
@@ -60,7 +66,7 @@ bench.on({
 
 **`bench.compare(primary: Analysis, comparisons: { [string]: Analysis })`** - Add comparison deltas/percentages
 
-**`bench.format(analysis: Analysis, options?: { verbose: boolean? })`** - Format as tree with ANSI colors
+**`bench.cli(analysis: Analysis, options?: { verbose: boolean? })`** - Format as tree with ANSI colors
 
 ## Composability
 
@@ -179,7 +185,7 @@ complexCalculation()
 bench.done()
 
 local dump = bench.off()
-print(bench.format(bench.analyze(dump.computation)))
+print(bench.cli(bench.analyze(dump.computation)))
 
 -- Output:
 -- computation
@@ -207,7 +213,7 @@ bench.mark("frame")
 bench.done()
 
 local dump = bench.dump()
-print(bench.format(bench.analyze(dump.frame)))
+print(bench.cli(bench.analyze(dump.frame)))
 
 -- Output (hierarchical):
 -- frame
@@ -235,7 +241,7 @@ for i = 1, 1000 do
 end
 
 local dump = bench.dump()
-print(bench.format(bench.analyze(dump.iteration), { verbose = true }))
+print(bench.cli(bench.analyze(dump.iteration), { verbose = true }))
 
 -- Output:
 -- iteration
@@ -273,7 +279,7 @@ local current_dump = bench.off()
 -- Compare
 local baseline = bench.analyze(baseline_dump.task)
 local current = bench.compare(bench.analyze(current_dump.task), { baseline = baseline })
-print(bench.format(current))
+print(bench.cli(current))
 
 -- Output:
 -- task
@@ -292,7 +298,7 @@ local bigTable = table.create(10000, 0)
 bench.done()
 
 local dump = bench.dump()
-print(bench.format(bench.analyze(dump.allocations)))
+print(bench.cli(bench.analyze(dump.allocations)))
 
 -- Note: Memory tracking uses gcinfo() and can be negative if GC occurs
 -- Adds overhead to mark()/done() - use only when needed

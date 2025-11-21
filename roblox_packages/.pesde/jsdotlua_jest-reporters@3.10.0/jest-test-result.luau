@@ -1,0 +1,23 @@
+local module = require(script.Parent.Parent:FindFirstChild("jsdotlua_jest-test-result@3.10.0"):FindFirstChild("jest-test-result"))
+export type AggregatedResult  = module.AggregatedResult 
+export type AssertionLocation  = module.AssertionLocation 
+export type AssertionResult  = module.AssertionResult 
+export type FailedAssertion  = module.FailedAssertion 
+export type FormattedTestResults  = module.FormattedTestResults 
+export type Milliseconds  = module.Milliseconds 
+export type RuntimeTransformResult  = module.RuntimeTransformResult 
+export type SerializableError  = module.SerializableError 
+export type Snapshot  = module.Snapshot 
+export type SnapshotSummary  = module.SnapshotSummary 
+export type Status  = module.Status 
+export type Suite  = module.Suite 
+export type Test  = module.Test 
+export type TestContext  = module.TestContext 
+export type Context  = module.Context 
+export type TestEvents  = module.TestEvents 
+export type TestFileEvent  = module.TestFileEvent 
+export type TestResult  = module.TestResult 
+export type TestResultsProcessor  = module.TestResultsProcessor 
+export type TestCaseResult  = module.TestCaseResult 
+export type V8CoverageResult  = module.V8CoverageResult 
+return module
