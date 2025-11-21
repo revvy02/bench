@@ -1,7 +1,0 @@
-{
-  "languageMode": "strict",
-  "aliases": {
-    "pkg": "./lune_packages",
-    "luaupkg": "./luau_packages"
-  }
-}
