@@ -14,6 +14,11 @@ composable benchmarking with minimal measurement overhead through Structure of A
 - **Topological Awareness**: Scope-aware hierarchical data extraction
 - **Rich Analysis**: Statistics, percentiles, comparisons, and nicely formatted output
 
+## CLI output via rir3
+<p align="center">
+  <img src="image.png" width="70%" />
+</p>
+
 ## Quick Start
 
 ```luau
@@ -96,40 +101,6 @@ bench.mark("test suite")
 bench.done()
 
 local suite = bench.dump()    -- Get entire suite with hierarchy
-```
-
-## Performance Focus: Structure of Arrays
-
-The library uses Structure of Arrays (SoA) to minimize `mark()`/`done()` overhead.
-
-**Traditional (Array of Structures):**
-```luau
-results[n] = { label = "foo", duration = 0.001, memory = 42 }
-```
-
-**Bench (Structure of Arrays):**
-```luau
-durations[n] = 0.001
-labels[n] = "foo"
-memories[n] = 42
-```
-
-**Benefits:**
-- `mark()` and `done()` only write to pre-allocated arrays
-- Dump tree construction is deferred until `dump()` is called
-- Cache-friendly contiguous storage
-
-**Overhead comparison:**
-```luau
--- debug.profile*
-debug.profilebegin("label")  -- String allocation, hash lookup
--- work
-debug.profileend()           -- String allocation, hash lookup, recording
-
--- Bench
-bench.mark("label")          -- Array write + os.clock()
--- work
-bench.done()                 -- Array write + os.clock() + subtraction
 ```
 
 ## Topological Awareness
