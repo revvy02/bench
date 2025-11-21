@@ -1,3 +1,15 @@
 **/luau_packages/
 **/lune_packages/
 **/roblox_packages/
+
+# Roblox Studio lock files
+/*.rbxlx.lock
+/*.rbxl.lock
+
+.DS_Store
+.pesde
+.env
+.rir3
+.claude
+.vscode
+.jestir
