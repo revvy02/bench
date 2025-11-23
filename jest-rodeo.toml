@@ -1,5 +1,11 @@
 [once]
 place_file = "test.rbxl"
 
+[cloud]
+place_id = 97892803145864
+universe_id = 9230046999
+place_version = 10
+upload = false
+
 [projects]
 bench = "src/bench"

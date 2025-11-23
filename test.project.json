@@ -9,9 +9,11 @@
         },
         "bench": {
             "$path": "src/bench"
-        },
-        "jest.config": {
-            "$path": "src/jest.config.luau"
+        }
+    },
+    "ServerScriptService": {
+        "$properties": {
+            "LoadStringEnabled": true
         }
     }
   }
