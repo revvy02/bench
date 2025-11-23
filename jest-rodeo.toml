@@ -2,4 +2,4 @@
 place_file = "test.rbxl"
 
 [projects]
-shared = "src/bench"
+bench = "src/bench"
