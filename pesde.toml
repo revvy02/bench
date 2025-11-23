@@ -10,10 +10,6 @@ pesde = "^0.7.1"
 [target]
 environment = "roblox"
 
-[scripts]
-roblox_sync_config_generator = ".pesde/scripts_rojo/roblox_sync_config_generator.luau"
-sourcemap_generator = ".pesde/scripts_rojo/sourcemap_generator.luau"
-
 [indices]
 default = "https://github.com/pesde-pkg/index"
 
@@ -21,9 +17,7 @@ default = "https://github.com/pesde-pkg/index"
 default = "https://github.com/UpliftGames/wally-index"
 
 [dev_dependencies]
-rir3 = { name = "rvy/rir3", version = "^0.1.2-rc.9", target = "lune" }
 jestir = { name = "rvy/jestir", version = "^0.0.4-rc.3", target = "lune" }
 greentea = { name = "corecii/greentea", version = "^0.4.11" }
 jest = { wally = "jsdotlua/jest", version = "^3.10.0" }
 jest_globals = { wally = "jsdotlua/jest-globals", version = "^3.10.0" }
-scripts_rojo = { name = "pesde/scripts_rojo", version = "^0.2.0", target = "lune" }

@@ -14,7 +14,7 @@ composable benchmarking with minimal measurement overhead through Structure of A
 - **Topological Awareness**: Scope-aware hierarchical data extraction
 - **Rich Analysis**: Statistics, percentiles, comparisons, and nicely formatted output
 
-## CLI output via rir3
+## CLI Output
 <p align="center">
   <img src="image.png" width="70%" />
 </p>
@@ -37,6 +37,46 @@ bench.done()
 local dump = bench.off()
 local analysis = bench.analyze(dump.function1)
 print(bench.cli(analysis)) -- outputs analysis formatted for cli
+```
+
+## Usage
+
+### Running Benchmarks in Roblox Studio
+
+Use [rodeo](https://github.com/revvy02/rodeo) to run benchmark scripts in your active Roblox Studio instance and pipe formatted output back to your terminal:
+
+```bash
+# Run a benchmark script in Studio and view CLI output
+rodeo run path/to/benchmark.luau
+
+# Example benchmark.luau:
+local bench = require(path.to.bench)
+
+bench.on()
+
+for i = 1, 1000 do
+    bench.mark("operation")
+    -- your code to benchmark
+    bench.done()
+end
+
+local dump = bench.off()
+local analysis = bench.analyze(dump.operation)
+print(bench.cli(analysis))  -- Formatted output appears in terminal
+```
+
+The `bench.cli()` function generates formatted terminal output with:
+- ANSI colors (green for fast, yellow/red for slow)
+- Auto-scaled units (s → ms → μs → ns)
+- Tree structure for nested benchmarks
+- Statistical summaries and comparisons
+
+### Standalone Usage
+
+For non-Studio environments (Lune, roblox-cli, etc.), simply run your benchmark script:
+
+```bash
+lune run benchmark.luau
 ```
 
 ## API
@@ -317,6 +357,8 @@ For each metric (time, memory):
 - **avg** - Average (mean)
 - **p10/p50/p90** - Percentiles (p50 = median)
 - **std** - Standard deviation
+- **cv** - Coefficient of Variation (relative variability as percentage)
+- **mad** - Median Absolute Deviation (robust alternative to standard deviation)
 
 ## Statistical Analysis (`analysis.luau`)
 
@@ -324,123 +366,4 @@ Determines if benchmark results are **reliable** and **significant**.
 
 ### Why Use Statistical Analysis?
 
-Benchmarks are noisy. Performance differences might be:
-- **Real improvements** - Worth celebrating
-- **Random noise** - Ignore and move on
-
-The analysis module tells you which is which using statistical tests.
-
-### What It Does
-
-**For single benchmarks** - Reliability checks:
-- Calculates confidence intervals and coefficient of variation
-- Reports **stability**: CV < 5% = consistent results
-- Reports **precision**: CI < ±5% of mean = narrow range
-
-**For comparisons** - Significance testing:
-- Runs Welch's t-test to detect real differences
-- Adds significance stars: `*` (p<0.05), `**` (p<0.01), `***` (p<0.001)
-- Calculates effect size: trivial, small, medium, large
-
-**For convergence** - Auto-stop detection:
-- Returns `true` if benchmark needs more iterations
-- Used for adaptive benchmarking loops
-
-### API
-
-```luau
-local analysis = require(path.to.bench.analysis)
-
--- Analyze single sample
-local stats = analysis.analyze(durations, {
-    confidence_level = 0.95,    -- 95% CI (default)
-    cv_threshold = 5.0,         -- 5% CV (default)
-    precision_threshold = 0.05, -- ±5% CI (default)
-})
-
-print("Mean:", stats.mean)
-print("CV:", stats.cv, "%")
-print("95% CI:", stats.ci_lower, "-", stats.ci_upper)
-print("Stable:", stats.is_stable)
-print("Precise:", stats.is_precise)
-```
-
-```luau
--- Compare two samples
-local comp = analysis.compare(baseline_times, optimized_times)
-
-print("Difference:", comp.mean_diff)
-print("Significant:", comp.is_significant, comp.stars)
-print("Effect size:", comp.effect_size)
-print("Cohen's d:", comp.cohens_d)
-```
-
-```luau
--- Check convergence
-if analysis.needs_more_samples(durations) then
-    print("Need more iterations")
-else
-    print("Converged - results are stable")
-end
-```
-
-### Key Concepts
-
-**Coefficient of Variation (CV)** - Relative noise as percentage:
-- CV < 5%: Excellent stability
-- CV < 10%: Good stability
-- CV > 20%: Poor reliability
-
-```
-CV = (std / mean) × 100%
-```
-
-**Confidence Interval (CI)** - Range where true mean likely falls:
-- 95% CI: "We're 95% confident the real value is in this range"
-- Narrower = more precise
-
-**Statistical Significance** - Whether differences are real:
-- `***` p < 0.001: Highly significant
-- `**` p < 0.01: Very significant
-- `*` p < 0.05: Significant
-- (no stars): Not significant, likely noise
-
-**Effect Size (Cohen's d)** - Magnitude of difference:
-- < 0.2: Trivial (not worth it)
-- < 0.5: Small
-- < 0.8: Medium
-- ≥ 0.8: Large (meaningful!)
-
-**Important:** A difference can be statistically significant but trivially small. Always check effect size.
-
-### Example: Detecting Real Improvements
-
-```luau
-local analysis = require(path.to.bench.analysis)
-
--- Collect baseline timings
-local baseline_times = { 1.23, 1.25, 1.22, 1.24, 1.23 } -- ms
-
--- Collect optimized timings
-local optimized_times = { 0.98, 1.01, 0.99, 1.00, 0.98 } -- ms
-
--- Compare
-local comp = analysis.compare(baseline_times, optimized_times)
-
-print(string.format(
-    "%.2fms → %.2fms (%.1f%% faster) %s",
-    comp.mean_diff,
-    comp.is_significant and comp.stars or "",
-    comp.effect_size
-))
-
--- Output: "0.24ms faster (19.5%) *** large"
--- This is a real, meaningful improvement!
-```
-
-### Implementation Details
-
-- **T-distribution**: Accurate CIs for small samples (n < 30)
-- **Welch's t-test**: Robust comparison without equal variance assumption
-- **Edge cases**: Handles empty samples, single values, zero variance
-- **Performance**: Optimized for minimal allocations
+-- coming soon
