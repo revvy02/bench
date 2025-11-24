@@ -182,139 +182,76 @@ bench.done()
 
 ## Examples
 
-### Basic Timing
+### Simulation Testing
 
 ```luau
 bench.on()
-
-bench.mark("computation")
-complexCalculation()
+bench.mark("sim test")
+  local connection = game:GetService("RunService").Heartbeat:Connect(function()
+    bench.mark("step")
+    -- simulation logic here
+    bench.done()
+  end)
+  task.wait(10)
+  connection:Disconnect()
 bench.done()
 
-local dump = bench.off()
-print(bench.cli(bench.analyze(dump.computation)))
-
--- Output:
--- computation
---   count: 1
---   time.avg: 123.45 μs
---   time.p50: 123.45 μs
+local dump = bench.dump()
+print(bench.cli(bench.analyze(dump["sim test"].children.step)))
+-- Shows statistics for all steps over 10 seconds
 ```
 
-### Nested Benchmarks
+### Implementation Comparison
 
 ```luau
 bench.on()
 
+bench.mark("old")
+  for i = 1, 1000 do
+    bench.mark("parse")
+    oldParser(data)
+    bench.done()
+  end
+bench.done()
+local old_dump = bench.dump()
+
+bench.mark("new")
+  for i = 1, 1000 do
+    bench.mark("parse")
+    newParser(data)
+    bench.done()
+  end
+bench.done()
+local new_dump = bench.dump()
+
+-- Compare shows deltas at matching topology
+local old_analysis = bench.analyze(old_dump.old.children.parse)
+local new_analysis = bench.compare(bench.analyze(new_dump.new.children.parse), { old = old_analysis })
+print(bench.cli(new_analysis))
+```
+
+### Hierarchical Performance
+
+```luau
+bench.on()
 bench.mark("frame")
-  bench.mark("update")
+  bench.mark("physics")
+  physicsStep()
   bench.done()
 
-  bench.mark("render")
-    bench.mark("geometry")
+  bench.mark("rendering")
+    bench.mark("culling")
+    frustumCull()
     bench.done()
 
-    bench.mark("lighting")
+    bench.mark("draw")
+    drawCalls()
     bench.done()
   bench.done()
 bench.done()
 
-local dump = bench.dump()
-print(bench.cli(bench.analyze(dump.frame)))
-
--- Output (hierarchical):
--- frame
---   count: 1
---   time.avg: 16.67 ms
---   ├── update
---   │   time.avg: 2.34 ms
---   └── render
---       time.avg: 14.33 ms
---       ├── geometry
---       │   time.avg: 8.21 ms
---       └── lighting
---           time.avg: 6.12 ms
-```
-
-### Iterative Measurements
-
-```luau
-bench.on()
-
-for i = 1, 1000 do
-  bench.mark("iteration")
-  doWork()
-  bench.done()
-end
-
-local dump = bench.dump()
-print(bench.cli(bench.analyze(dump.iteration), { verbose = true }))
-
--- Output:
--- iteration
---   count: 1000
---   time.min: 45.23 μs
---   time.max: 892.11 μs
---   time.avg: 123.45 μs
---   time.p10: 67.89 μs
---   time.p50: 101.23 μs
---   time.p90: 234.56 μs
---   time.std: 78.90 μs
-```
-
-### Performance Comparisons
-
-```luau
-bench.on()
-
--- Baseline
-bench.mark("baseline")
-  for i = 1, 100 do
-    bench.mark("task")
-    oldImplementation()
-    bench.done()
-  end
-bench.done()
-local baseline_dump = bench.dump()
-
--- Current
-bench.mark("current")
-  for i = 1, 100 do
-    bench.mark("task")
-    newImplementation()
-    bench.done()
-  end
-bench.done()
-local current_dump = bench.dump()
-
-bench.off()
-
--- Compare
-local baseline = bench.analyze(baseline_dump.baseline.children.task)
-local current = bench.compare(bench.analyze(current_dump.current.children.task), { baseline = baseline })
-print(bench.cli(current))
-
--- Output:
--- task
---   count: 100
---   time.avg: 89.12 μs (Δ -34.33 μs, -27.8%) ← green
---   time.p50: 87.65 μs (Δ -32.11 μs, -26.8%) ← green
-```
-
-### Memory Tracking
-
-```luau
-bench.on({ track_memory = true })
-
-bench.mark("allocations")
-local bigTable = table.create(10000, 0)
-bench.done()
-
-local dump = bench.dump()
-print(bench.cli(bench.analyze(dump.allocations)))
-
--- Note: Memory tracking uses gcinfo() and can be negative if GC occurs
--- Adds overhead to mark()/done() - use only when needed
+print(bench.cli(bench.analyze(bench.dump().frame)))
+-- Outputs full hierarchy with timing at each level
 ```
 
 ## Statistics
