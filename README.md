@@ -7,15 +7,15 @@ A high-performance, composable benchmarking library for Luau with minimal overhe
 
 ## Overview
 
-`bench` provides a an api similar to `debug.profilebegin()` and `debug.profileend()`. It marks 
-scopes and allows tracking hierarchical performance traces. It's designed for 
-composable benchmarking with minimal measurement overhead through Structure of Arrays (SoA) design.
-
 **Key Features:**
-- **Composability**: Nest benchmarks and use incremental dumps
-- **Minimal Overhead**: `mark()` and `done()` are extremely fast for usage in hot
+- **Composability**: Nest benchmarks and use incremental dumps while maintaining hierarchical measurement relationships
+- **Minimal Overhead**: `mark()` and `done()` are extremely fast for usage in hot code paths
 - **Topological Awareness**: Scope-aware hierarchical data extraction
 - **Rich Analysis**: Statistics, percentiles, comparisons, and nicely formatted output
+
+## Design Philosophy
+
+When comparing implementations (e.g., old vs new algorithm), they often share the same hierarchical structure. To capture this, `mark()` and `done()` sit directly in your code to define and label topology non-intrusively, making it easy to instrument existing code without disrupting flow. Dumps automatically group samples based on their position in the hierarchy, preserving the structural relationships between measurements. This hierarchical grouping becomes the foundation for structure-aware comparison: `compare()` leverages the shared topology to intelligently align implementations by their underlying structure, showing performance deltas at each level of the hierarchy and making it clear exactly where optimizations succeeded or failed.
 
 ## CLI Output
 <p align="center">
@@ -42,6 +42,7 @@ local analysis = bench.analyze(dump.function1)
 print(bench.cli(analysis)) -- outputs analysis formatted for cli
 ```
 
+
 ## Usage
 
 ### Running Benchmarks in Roblox Studio
@@ -50,7 +51,7 @@ Use [rodeo](https://github.com/revvy02/rodeo) to run benchmark scripts in your a
 
 ```bash
 # Run a benchmark script in Studio and view CLI output
-rodeo run path/to/benchmark.luau
+rodeo exec path/to/benchmark.luau
 
 # Example benchmark.luau:
 local bench = require(path.to.bench)
@@ -73,14 +74,6 @@ The `bench.cli()` function generates formatted terminal output with:
 - Auto-scaled units (s → ms → μs → ns)
 - Tree structure for nested benchmarks
 - Statistical summaries and comparisons
-
-### Standalone Usage
-
-For non-Studio environments (Lune, roblox-cli, etc.), simply run your benchmark script:
-
-```bash
-lune run benchmark.luau
-```
 
 ## API
 
@@ -316,40 +309,6 @@ print(bench.cli(bench.analyze(dump.allocations)))
 
 -- Note: Memory tracking uses gcinfo() and can be negative if GC occurs
 -- Adds overhead to mark()/done() - use only when needed
-```
-
-## Types
-
-```luau
-export type BenchConfig = {
-    track_memory: boolean?,
-    expected_results: number?,
-    expected_depth: number?,
-}
-
-export type Dump = {
-    durations: { number },
-    memories: { number }?,
-    children: { [string]: Dump },
-}
-
-export type Analysis = {
-    stats: Stats,
-    comparisons: { [string]: ComparisonData? }?,
-    children: { [string]: Analysis }?,
-}
-
-export type Stats = { [string]: number }
--- Keys: count, time.min/max/avg/p10/p50/p90/std, mem.* (if tracked)
-
-export type ComparisonData = {
-    delta: { [string]: number },
-    pct: { [string]: number },
-}
-
-export type FormatOptions = {
-    verbose: boolean?
-}
 ```
 
 ## Statistics
