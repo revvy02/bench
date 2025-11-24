@@ -34,7 +34,7 @@ local ANSI = {
 	ORANGE = "\27[38;5;208m",
 }
 
-local function _make_style(code: string)
+local function make_style(code: string)
 	return function(s: string)
 		return code .. s .. ANSI.RESET
 	end
@@ -44,15 +44,15 @@ terminal.style = {
 	white_underline = function(s: string)
 		return ANSI.BOLD .. ANSI.UNDERLINE .. s .. ANSI.RESET
 	end,
-	white = _make_style(ANSI.WHITE),
-	green = _make_style(ANSI.GREEN),
-	red = _make_style(ANSI.RED),
-	yellow = _make_style(ANSI.YELLOW),
-	blue = _make_style(ANSI.BLUE),
-	magenta = _make_style(ANSI.MAGENTA),
-	cyan = _make_style(ANSI.CYAN),
-	gray = _make_style(ANSI.GRAY),
-	orange = _make_style(ANSI.ORANGE),
+	white = make_style(ANSI.WHITE),
+	green = make_style(ANSI.GREEN),
+	red = make_style(ANSI.RED),
+	yellow = make_style(ANSI.YELLOW),
+	blue = make_style(ANSI.BLUE),
+	magenta = make_style(ANSI.MAGENTA),
+	cyan = make_style(ANSI.CYAN),
+	gray = make_style(ANSI.GRAY),
+	orange = make_style(ANSI.ORANGE),
 	-- Composable bold
 	bold = function(s: string)
 		return ANSI.BOLD .. s .. ANSI.RESET
