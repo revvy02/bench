@@ -13,5 +13,5 @@
 .claude
 .vscode
 .jest-rodeo
-# sourcemap.json
-# test.rbxl
+sourcemap.json
+test.rbxl
