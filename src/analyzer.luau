@@ -51,12 +51,7 @@ local STAT_SUFFIXES = {
 }
 
 -- Compute statistics from array of values with a given prefix (e.g., "time", "mem")
-local function compute_stats(
-	values: { number },
-	prefix: string,
-	target_cv: number?,
-	target_precision: number?
-): { [string]: number }
+local function compute_stats(values: { number }, prefix: string, target_cv: number?, target_precision: number?): { [string]: number }
 	local count = #values
 
 	if count == 0 then
@@ -218,14 +213,7 @@ local function BENCH_COMPARE(primary: Analysis, comparisons: { [string]: Analysi
 	local comparison_data: { [string]: ComparisonData? } = {}
 
 	for comp_name, comp_node in comparisons do
-		comparison_data[comp_name] = compare_nodes(
-			primary.stats,
-			comp_node.stats,
-			primary.durations,
-			comp_node.durations,
-			primary.memories,
-			comp_node.memories
-		)
+		comparison_data[comp_name] = compare_nodes(primary.stats, comp_node.stats, primary.durations, comp_node.durations, primary.memories, comp_node.memories)
 	end
 
 	local child_result: { [string]: Analysis }? = nil

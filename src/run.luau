@@ -62,13 +62,7 @@ end
 --
 
 -- Utility: Run a single benchmark with lifecycle hooks
-local function run_single_benchmark(
-	name: string,
-	fn: (any) -> (),
-	params: (() -> ())?,
-	before_each: (() -> ())?,
-	after_each: (() -> ())?
-)
+local function run_single_benchmark(name: string, fn: (any) -> (), params: (() -> ())?, before_each: (() -> ())?, after_each: (() -> ())?)
 	if before_each then
 		before_each()
 	end
@@ -82,12 +76,7 @@ local function run_single_benchmark(
 end
 
 -- Utility: Run a set of benchmarks
-local function run_benchmark_set(
-	benchmarks: { [string]: (any) -> () },
-	params: (() -> ())?,
-	before_each: (() -> ())?,
-	after_each: (() -> ())?
-)
+local function run_benchmark_set(benchmarks: { [string]: (any) -> () }, params: (() -> ())?, before_each: (() -> ())?, after_each: (() -> ())?)
 	for name, fn in benchmarks do
 		run_single_benchmark(name, fn, params, before_each, after_each)
 	end
@@ -134,8 +123,7 @@ local function should_continue_convergence(
 	local all_converged = true
 	for _, name in benchmarks_to_check do
 		if current_dump[name] and current_dump[name].durations then
-			local needs_more =
-				sampler.needs_more_samples(current_dump[name].durations, config.target_cv, config.target_precision)
+			local needs_more = sampler.needs_more_samples(current_dump[name].durations, config.target_cv, config.target_precision)
 			if needs_more then
 				all_converged = false
 				break
@@ -336,10 +324,7 @@ local function is_race_mode(baselines: { [string]: any }, comparisons: { [string
 end
 
 -- Processing: Find the winner in race mode using score function
-local function find_winner(
-	analyses: { [string]: analyzer.Analysis },
-	score_fn: (analyzer.Stats) -> number
-): (string, analyzer.Analysis)
+local function find_winner(analyses: { [string]: analyzer.Analysis }, score_fn: (analyzer.Stats) -> number): (string, analyzer.Analysis)
 	local best_name = nil
 	local best_analysis = nil
 	local best_score = math.huge
@@ -386,11 +371,7 @@ local function create_comparison_results(
 end
 
 -- Processing: Sort and format results
-local function sort_and_format_results(
-	results: { TemplateResult },
-	score_fn: (analyzer.Stats) -> number,
-	verbose: boolean?
-)
+local function sort_and_format_results(results: { TemplateResult }, score_fn: (analyzer.Stats) -> number, verbose: boolean?)
 	-- Sort by score (ascending, best first)
 	table.sort(results, function(a, b)
 		local a_score = score_fn(a.analysis.stats)
@@ -421,9 +402,7 @@ local function BENCH_template(benchmark: TemplateConfig)
 	local after_each = benchmark.after_each
 
 	local warmup_enabled = if benchmark.warmup then (benchmark.warmup.enabled ~= false) else true
-	local warmup_iterations = if benchmark.warmup and benchmark.warmup.iterations
-		then benchmark.warmup.iterations
-		else DEFAULT_WARMUP_ITERATIONS
+	local warmup_iterations = if benchmark.warmup and benchmark.warmup.iterations then benchmark.warmup.iterations else DEFAULT_WARMUP_ITERATIONS
 
 	local convergence_enabled = if benchmark.convergence then (benchmark.convergence.enabled ~= false) else false
 	local min_iterations = if benchmark.convergence and benchmark.convergence.min_iterations
@@ -432,9 +411,7 @@ local function BENCH_template(benchmark: TemplateConfig)
 	local max_iterations = if benchmark.convergence and benchmark.convergence.max_iterations
 		then benchmark.convergence.max_iterations
 		else DEFAULT_MAX_ITERATIONS
-	local target_cv = if benchmark.convergence and benchmark.convergence.target_cv
-		then benchmark.convergence.target_cv
-		else DEFAULT_TARGET_CV
+	local target_cv = if benchmark.convergence and benchmark.convergence.target_cv then benchmark.convergence.target_cv else DEFAULT_TARGET_CV
 	local target_precision = if benchmark.convergence and benchmark.convergence.target_precision
 		then benchmark.convergence.target_precision
 		else DEFAULT_TARGET_PRECISION

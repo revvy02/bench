@@ -321,12 +321,7 @@ export type ScaleThreshold = {
 	color: (string) -> string,
 }
 
-function terminal.format_scaled_value(
-	value: number,
-	unit: string,
-	scale_thresholds: { ScaleThreshold },
-	precision: number?
-): string
+function terminal.format_scaled_value(value: number, unit: string, scale_thresholds: { ScaleThreshold }, precision: number?): string
 	local prec = precision or 2
 	local abs_value = math.abs(value)
 
@@ -341,12 +336,7 @@ function terminal.format_scaled_value(
 	return string.format(`%.{prec}f %s` :: any, value, unit)
 end
 
-function terminal.format_scaled_value_plain(
-	value: number,
-	unit: string,
-	scale_thresholds: { ScaleThreshold },
-	precision: number?
-): (string, string)
+function terminal.format_scaled_value_plain(value: number, unit: string, scale_thresholds: { ScaleThreshold }, precision: number?): (string, string)
 	local prec = precision or 2
 	local abs_value = math.abs(value)
 
