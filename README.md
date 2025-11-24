@@ -16,7 +16,7 @@ composable benchmarking with minimal measurement overhead through Structure of A
 
 ## CLI Output
 <p align="center">
-  <img src="README/images/image.png" width="70%" />
+  <img src="docs/images/image.png" width="70%" />
 </p>
 
 ## Quick Start

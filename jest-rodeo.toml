@@ -1,5 +1,5 @@
 [once]
-place_file = "test.rbxl"
+place_file = "test/test.rbxl"
 
 [cloud]
 place_id = 97892803145864

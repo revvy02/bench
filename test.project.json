@@ -8,7 +8,7 @@
             "$path": "roblox_packages"
         },
         "bench": {
-            "$path": "src/bench"
+            "$path": "src"
         }
     },
     "ServerScriptService": {

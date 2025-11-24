@@ -76,6 +76,7 @@ describe("bench", function()
 			bench.done()
 
 			local dump = bench.off()
+			assert(dump)
 
 			expect(dump).never.toBeNil()
 			expect(dump.test).never.toBeNil()
@@ -99,6 +100,7 @@ describe("bench", function()
 			bench.done()
 
 			local dump = bench.dump()
+			assert(dump)
 			expect(dump).never.toBeNil()
 			expect(dump.test).never.toBeNil()
 			expect(#dump.test.durations).toBe(1)
@@ -110,6 +112,7 @@ describe("bench", function()
 			bench.done()
 
 			local dump = bench.dump()
+			assert(dump)
 			expect(dump.test.durations[1]).toBeGreaterThanOrEqual(0.01)
 		end)
 
@@ -120,6 +123,7 @@ describe("bench", function()
 			bench.done()
 
 			local dump = bench.dump()
+			assert(dump)
 
 			expectDumpStructure(dump, {
 				parent = {
@@ -143,6 +147,7 @@ describe("bench", function()
 			bench.done()
 
 			local dump = bench.dump()
+			assert(dump)
 
 			expectDumpStructure(dump, {
 				level1 = {
@@ -171,6 +176,7 @@ describe("bench", function()
 			bench.done()
 
 			local dump = bench.dump()
+			assert(dump)
 
 			expect(dump.task).never.toBeNil()
 			expect(#dump.task.durations).toBe(3)
@@ -196,6 +202,7 @@ describe("bench", function()
 			bench.done()
 
 			local dump = bench.dump()
+			assert(dump)
 
 			expect(dump).never.toBeNil()
 			expect(dump.test).never.toBeNil()
@@ -219,6 +226,7 @@ describe("bench", function()
 			bench.done()
 
 			local dump1 = bench.dump()
+			assert(dump1)
 			expect(dump1.test1).never.toBeNil()
 
 			-- New marks should appear in next dump
@@ -226,6 +234,7 @@ describe("bench", function()
 			bench.done()
 
 			local dump2 = bench.dump()
+			assert(dump2)
 			expect(dump2).never.toBeNil()
 			expect(dump2.test2).never.toBeNil()
 			expect(dump2.test1).toBeNil() -- test1 was already dumped
@@ -253,6 +262,7 @@ describe("bench", function()
 			bench.done() -- done level 1
 
 			local dump = bench.dump()
+			assert(dump)
 
 			-- Should create nested recursive structure with same label at each level
 			expectDumpStructure(dump, {
@@ -306,6 +316,7 @@ describe("bench", function()
 
 			-- Dump at current level (inside test suite)
 			local dump = bench.dump()
+			assert(dump)
 
 			-- Should capture test 1 and test 2
 			expect(dump).never.toBeNil()
@@ -330,6 +341,7 @@ describe("bench", function()
 
 			-- Dump at root level
 			local test_suite_dump = bench.dump()
+			assert(test_suite_dump)
 
 			-- Should capture test suite with ALL children
 			expect(test_suite_dump).never.toBeNil()
@@ -366,6 +378,7 @@ describe("bench", function()
 			bench.done()
 
 			local dump1 = bench.dump()
+			assert(dump1)
 			expect(dump1).never.toBeNil()
 			expect(dump1.test1).never.toBeNil()
 			expect(dump1.test1.children).never.toBeNil()
@@ -383,6 +396,7 @@ describe("bench", function()
 			bench.done()
 
 			local dump2 = bench.dump()
+			assert(dump2)
 			expect(dump2).never.toBeNil()
 			expect(dump2.test2).never.toBeNil()
 			expect(dump2.test1).toBeNil() -- test1 was already dumped
@@ -411,6 +425,7 @@ describe("bench", function()
 
 			-- Dump both together (neither was dumped before)
 			local dump = bench.dump()
+			assert(dump)
 			expect(dump).never.toBeNil()
 			expect(dump.test1).never.toBeNil()
 			expect(dump.test2).never.toBeNil()
@@ -438,6 +453,7 @@ describe("bench", function()
 			bench.done()
 
 			local dump = bench.dump()
+			assert(dump)
 			expect(dump).never.toBeNil()
 			expect(dump.test).never.toBeNil()
 			expect(#dump.test.durations).toBe(3)
@@ -457,6 +473,7 @@ describe("bench", function()
 			bench.done()
 
 			local dump = bench.dump()
+			assert(dump)
 			expect(dump).never.toBeNil()
 			expect(dump.d1).never.toBeNil()
 			expect(dump.d1.children.d2).never.toBeNil()
@@ -471,6 +488,7 @@ describe("bench", function()
 			bench.done()
 
 			local dump1 = bench.dump()
+			assert(dump1)
 			expect(dump1).never.toBeNil()
 			expect(dump1.test).never.toBeNil()
 
@@ -505,6 +523,7 @@ describe("bench", function()
 			bench.done()
 
 			local dump = bench.dump()
+			assert(dump)
 			expect(dump).never.toBeNil()
 			expect(dump.outer).never.toBeNil()
 			expect(dump.outer.children).never.toBeNil()
@@ -526,6 +545,7 @@ describe("bench", function()
 			bench.done()
 
 			local dumps = bench.dump()
+			assert(dumps)
 			local analysis = bench.analyze(dumps.task)
 
 			expect(analysis).never.toBeNil()
@@ -545,6 +565,7 @@ describe("bench", function()
 			bench.done()
 
 			local dumps = bench.dump()
+			assert(dumps)
 			local analysis = bench.analyze(dumps.task)
 
 			expect(analysis.stats.count).toBe(3)
@@ -564,6 +585,7 @@ describe("bench", function()
 			bench.done()
 
 			local dumps = bench.dump()
+			assert(dumps)
 			local analysis = bench.analyze(dumps.task)
 
 			expect(analysis.stats.count).toBe(3)
@@ -580,6 +602,7 @@ describe("bench", function()
 			end
 
 			local dumps = bench.dump()
+			assert(dumps)
 			local analysis = bench.analyze(dumps.task)
 
 			expect(analysis.stats["time.p10"]).toBeLessThan(analysis.stats["time.p50"])
@@ -598,6 +621,7 @@ describe("bench", function()
 			bench.done()
 
 			local dumps = bench.dump()
+			assert(dumps)
 			local analysis = bench.analyze(dumps.task)
 
 			expect(analysis.stats["time.std"]).toBeGreaterThan(0)
@@ -615,6 +639,7 @@ describe("bench", function()
 			bench.done()
 
 			local dumps = bench.dump()
+			assert(dumps)
 			local analysis = bench.analyze(dumps.parent)
 
 			expect(analysis).never.toBeNil()
@@ -629,6 +654,7 @@ describe("bench", function()
 			bench.done()
 
 			local dumps = bench.dump()
+			assert(dumps)
 			local analysis = bench.analyze(dumps.leaf)
 
 			-- Leaf nodes have no child analysis (children is nil in analysis)
@@ -647,6 +673,7 @@ describe("bench", function()
 			task.wait(0.015)
 			bench.done()
 			local baseline_dumps = bench.dump()
+			assert(baseline_dumps)
 			bench.off()
 
 			-- Create current
@@ -655,6 +682,7 @@ describe("bench", function()
 			task.wait(0.01)
 			bench.done()
 			local current_dumps = bench.dump()
+			assert(current_dumps)
 
 			-- Analyze with comparison
 			local baseline_analysis = bench.analyze(baseline_dumps.task)
@@ -712,6 +740,7 @@ describe("bench", function()
 			bench.done()
 			bench.done()
 			local baseline_dumps = bench.dump()
+			assert(baseline_dumps)
 			bench.off()
 
 			-- Create current with "task1" and "task2"
@@ -723,6 +752,7 @@ describe("bench", function()
 			bench.done()
 			bench.done()
 			local current_dumps = bench.dump()
+			assert(current_dumps)
 
 			local baseline_analysis = bench.analyze(baseline_dumps.outer)
 			local current_analysis = bench.compare(bench.analyze(current_dumps.outer), {
@@ -774,6 +804,7 @@ describe("bench", function()
 			bench.done()
 			bench.done()
 			local baseline_dumps = bench.dump()
+			assert(baseline_dumps)
 			bench.off()
 
 			-- Create current
@@ -784,6 +815,7 @@ describe("bench", function()
 			bench.done()
 			bench.done()
 			local current_dumps = bench.dump()
+			assert(current_dumps)
 
 			local baseline_analysis = bench.analyze(baseline_dumps.parent)
 			local current_analysis = bench.compare(bench.analyze(current_dumps.parent), {
@@ -807,6 +839,7 @@ describe("bench", function()
 			bench.done()
 
 			local dumps = bench.dump()
+			assert(dumps)
 			local analysis = bench.analyze(dumps.task)
 			local formatted = bench.cli(analysis)
 
@@ -823,6 +856,7 @@ describe("bench", function()
 			bench.done()
 
 			local dumps = bench.dump()
+			assert(dumps)
 			local analysis = bench.analyze(dumps.parent)
 			local formatted = bench.cli(analysis)
 
@@ -839,6 +873,7 @@ describe("bench", function()
 			bench.done()
 
 			local dumps = bench.dump()
+			assert(dumps)
 			local analysis = bench.analyze(dumps.task)
 			local formatted = bench.cli(analysis, { verbose = true })
 
@@ -858,6 +893,7 @@ describe("bench", function()
 			bench.done()
 
 			local dumps = bench.dump()
+			assert(dumps)
 			local analysis = bench.analyze(dumps.task)
 			local formatted = bench.cli(analysis, { verbose = false })
 
@@ -888,6 +924,7 @@ describe("bench", function()
 			bench.abort()
 
 			local dump = bench.dump()
+			assert(dump)
 
 			expect(dump).never.toBeNil()
 			expect(dump.parent).never.toBeNil()
@@ -903,6 +940,7 @@ describe("bench", function()
 			bench.abort()
 
 			local dump = bench.dump()
+			assert(dump)
 			expect(dump).never.toBeNil()
 			expect(dump.test1).never.toBeNil()
 			expect(dump.test1.children).never.toBeNil()
@@ -918,6 +956,7 @@ describe("bench", function()
 			bench.done()
 
 			local dump = bench.dump()
+			assert(dump)
 			expect(dump).never.toBeNil()
 			expect(dump.test2).never.toBeNil()
 		end)
@@ -948,6 +987,7 @@ describe("bench", function()
 			bench.done()
 
 			local dumps = bench.dump()
+			assert(dumps)
 			local analysis = bench.analyze(dumps.frame)
 
 			expect(analysis.stats.count).toBe(2)
@@ -965,6 +1005,7 @@ describe("bench", function()
 			bench.done()
 			bench.done()
 			local dump = bench.off()
+			assert(dump)
 
 			expect(dump).never.toBeNil()
 			expect(dump.parent).never.toBeNil()
@@ -979,6 +1020,7 @@ describe("bench", function()
 			task.wait(0.015)
 			bench.done()
 			local baseline_dumps = bench.off()
+			assert(baseline_dumps)
 
 			-- Current session
 			bench.on()
@@ -986,6 +1028,7 @@ describe("bench", function()
 			task.wait(0.01)
 			bench.done()
 			local current_dumps = bench.off()
+			assert(current_dumps)
 
 			-- Analyze both
 			local baseline_analysis = bench.analyze(baseline_dumps.task)
@@ -1010,6 +1053,7 @@ describe("bench", function()
 			bench.done()
 
 			local dump = bench.dump()
+			assert(dump)
 			expect(dump).never.toBeNil()
 			expect(dump.task).never.toBeNil()
 			expect(dump.task.memories).toBeNil()
@@ -1023,6 +1067,7 @@ describe("bench", function()
 			bench.done()
 
 			local dump = bench.dump()
+			assert(dump)
 			expect(dump).never.toBeNil()
 			expect(dump.task).never.toBeNil()
 			expect(dump.task.memories).never.toBeNil()
@@ -1038,6 +1083,7 @@ describe("bench", function()
 			bench.done()
 
 			local dump = bench.dump()
+			assert(dump)
 			expect(dump.parent.memories).never.toBeNil()
 			expect(dump.parent.children.child.memories).never.toBeNil()
 		end)
@@ -1051,6 +1097,7 @@ describe("bench", function()
 			end
 
 			local dumps = bench.dump()
+			assert(dumps)
 			local analysis = bench.analyze(dumps.task)
 
 			-- Memory stats are now in the same stats dict with mem. prefix
@@ -1066,6 +1113,7 @@ describe("bench", function()
 			local _ = table.create(1000, 0)
 			bench.done()
 			local baseline_dumps = bench.dump()
+			assert(baseline_dumps)
 			bench.off()
 
 			-- Current with memory tracking
@@ -1074,6 +1122,7 @@ describe("bench", function()
 			local _ = table.create(500, 0)
 			bench.done()
 			local current_dumps = bench.dump()
+			assert(current_dumps)
 
 			local baseline_analysis = bench.analyze(baseline_dumps.task)
 			local current_analysis = bench.compare(bench.analyze(current_dumps.task), {
@@ -1093,6 +1142,7 @@ describe("bench", function()
 			bench.done()
 
 			local dumps = bench.dump()
+			assert(dumps)
 			local analysis = bench.analyze(dumps.task)
 			local formatted = bench.cli(analysis)
 
@@ -1109,6 +1159,7 @@ describe("bench", function()
 			bench.done()
 
 			local dump = bench.dump()
+			assert(dump)
 			-- Memory can be negative, should not error
 			expect(dump.task.memories).never.toBeNil()
 			expect(#dump.task.memories).toBe(1)

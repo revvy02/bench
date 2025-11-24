@@ -46,7 +46,7 @@ local FORMATTER_CONFIG: {
 }
 
 -- Unified formatter for all stat types (returns value and unit strings separately for alignment)
-local function _format_value(value: number, stat_type: config.StatType, precision: number): (string, string)
+local function format_value(value: number, stat_type: config.StatType, precision: number): (string, string)
 	local formatter_config = FORMATTER_CONFIG[stat_type]
 
 	if formatter_config.needs_scaling then
@@ -60,7 +60,7 @@ local function _format_value(value: number, stat_type: config.StatType, precisio
 end
 
 -- Apply color to unit string based on stat type and value
-local function _apply_unit_color(value_str: string, unit_str: string, stat_type: config.StatType, raw_value: number): string
+local function apply_unit_color(value_str: string, unit_str: string, stat_type: config.StatType, raw_value: number): string
 	if unit_str == "" then
 		return value_str
 	end
@@ -74,7 +74,7 @@ local function _apply_unit_color(value_str: string, unit_str: string, stat_type:
 	end
 end
 
-local function _get_comparison_color(delta: number, polarity: config.StatPolarity)
+local function get_comparison_color(delta: number, polarity: config.StatPolarity)
 	if polarity == "neutral" then
 		return style.white
 	end
@@ -89,12 +89,12 @@ local function _get_comparison_color(delta: number, polarity: config.StatPolarit
 end
 
 -- Converts the tree to a string for cli
-local function _format_tree(tree: { FormatTree }): string
+local function format_tree(tree: { FormatTree }): string
 	return terminal.format_tree(tree)
 end
 
 -- Convert a single Analysis node to a FormatTree
-local function _analysis_to_tree_node(analysis: analyzer.Analysis, verbose: boolean, precision: number): FormatTree
+local function analysis_to_tree_node(analysis: analyzer.Analysis, verbose: boolean, precision: number): FormatTree
 	local label, stats, comparisons, children = analysis.label, analysis.stats, analysis.comparisons, analysis.children
 
 	local stat_children: { FormatTree } = {}
@@ -117,8 +117,8 @@ local function _analysis_to_tree_node(analysis: analyzer.Analysis, verbose: bool
 		local value = stats[stat_name]
 		if type(value) == "number" then
 			-- Format value and apply colors
-			local value_str, unit_str = _format_value(value, metadata.type, precision)
-			local formatted_colored = _apply_unit_color(value_str, unit_str, metadata.type, value)
+			local value_str, unit_str = format_value(value, metadata.type, precision)
+			local formatted_colored = apply_unit_color(value_str, unit_str, metadata.type, value)
 
 			table.insert(stat_rows, {
 				stat_name .. ":",
@@ -174,8 +174,8 @@ local function _analysis_to_tree_node(analysis: analyzer.Analysis, verbose: bool
 					local significance_val = comp_data.significance and comp_data.significance[stat_name]
 					if significance_val then
 						-- Format significance stat (no comparison, just the value)
-						local sig_value_str, sig_unit_str = _format_value(significance_val, metadata.type, precision)
-						local sig_colored = _apply_unit_color(sig_value_str, sig_unit_str, metadata.type, significance_val)
+						local sig_value_str, sig_unit_str = format_value(significance_val, metadata.type, precision)
+						local sig_colored = apply_unit_color(sig_value_str, sig_unit_str, metadata.type, significance_val)
 
 						table.insert(rows, {
 							stat_name .. ":",
@@ -193,10 +193,10 @@ local function _analysis_to_tree_node(analysis: analyzer.Analysis, verbose: bool
 
 					if delta_val and pct_val and comparison_val and baseline_val then
 						-- Format values and apply colors
-						local comp_value_str, comp_unit_str = _format_value(comparison_val, metadata.type, precision)
-						local delta_value_str, delta_unit_str = _format_value(math.abs(delta_val), metadata.type, precision)
+						local comp_value_str, comp_unit_str = format_value(comparison_val, metadata.type, precision)
+						local delta_value_str, delta_unit_str = format_value(math.abs(delta_val), metadata.type, precision)
 
-						local comp_colored = _apply_unit_color(comp_value_str, comp_unit_str, metadata.type, comparison_val)
+						local comp_colored = apply_unit_color(comp_value_str, comp_unit_str, metadata.type, comparison_val)
 
 						-- Calculate ratio
 						local ratio = baseline_val / comparison_val
@@ -213,7 +213,7 @@ local function _analysis_to_tree_node(analysis: analyzer.Analysis, verbose: bool
 						local ratio_str = ratio >= 1 and string.format("%.2fx %s", ratio, ratio_label) or string.format("%.2fx %s", 1 / ratio, ratio_label)
 
 						-- Apply comparison color to both ratio and delta
-						local color_fn = _get_comparison_color(delta_val, metadata.polarity)
+						local color_fn = get_comparison_color(delta_val, metadata.polarity)
 						local colored_ratio = style.bold(color_fn(ratio_str))
 
 						-- Build delta string with color (not bold)
@@ -266,7 +266,7 @@ local function _analysis_to_tree_node(analysis: analyzer.Analysis, verbose: bool
 	if children then
 		analysis_children = {}
 		for _, child_node in children do
-			table.insert(analysis_children, _analysis_to_tree_node(child_node, verbose, precision))
+			table.insert(analysis_children, analysis_to_tree_node(child_node, verbose, precision))
 		end
 	end
 
@@ -289,15 +289,15 @@ end
 
 local DEFAULT_PRECISION = 3
 
-local function BENCH_format(analysis: analyzer.Analysis, options: FormatOptions?): string
+local function BENCH_CLI(analysis: analyzer.Analysis, options: FormatOptions?): string
 	local opts = options or {} :: FormatOptions
 	local verbose = opts.verbose or false
 	local precision = DEFAULT_PRECISION
 
 	-- Convert single Analysis node to a tree (uses label from analysis)
-	local tree_node = _analysis_to_tree_node(analysis, verbose, precision)
+	local tree_node = analysis_to_tree_node(analysis, verbose, precision)
 
-	return _format_tree({ tree_node })
+	return format_tree({ tree_node })
 end
 
-return BENCH_format
+return BENCH_CLI
