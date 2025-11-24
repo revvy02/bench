@@ -265,27 +265,33 @@ print(bench.cli(bench.analyze(dump.iteration), { verbose = true }))
 ### Performance Comparisons
 
 ```luau
--- Baseline
 bench.on()
-for i = 1, 100 do
-  bench.mark("task")
-  oldImplementation()
-  bench.done()
-end
-local baseline_dump = bench.off()
+
+-- Baseline
+bench.mark("baseline")
+  for i = 1, 100 do
+    bench.mark("task")
+    oldImplementation()
+    bench.done()
+  end
+bench.done()
+local baseline_dump = bench.dump()
 
 -- Current
-bench.on()
-for i = 1, 100 do
-  bench.mark("task")
-  newImplementation()
-  bench.done()
-end
-local current_dump = bench.off()
+bench.mark("current")
+  for i = 1, 100 do
+    bench.mark("task")
+    newImplementation()
+    bench.done()
+  end
+bench.done()
+local current_dump = bench.dump()
+
+bench.off()
 
 -- Compare
-local baseline = bench.analyze(baseline_dump.task)
-local current = bench.compare(bench.analyze(current_dump.task), { baseline = baseline })
+local baseline = bench.analyze(baseline_dump.baseline.children.task)
+local current = bench.compare(bench.analyze(current_dump.current.children.task), { baseline = baseline })
 print(bench.cli(current))
 
 -- Output:
