@@ -1,6 +1,5 @@
 {
   "name": "bench",
-  "emitLegacyScripts": false,
   "tree": {
     "$className": "DataModel",
     "ReplicatedStorage": {

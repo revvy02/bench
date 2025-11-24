@@ -33,4 +33,4 @@ jobs:
       - name: Run tests
         env:
           JEST_RODEO_API_KEY: ${{ secrets.JEST_RODEO_API_KEY }}
-        run: lune run .lune/test.luau
+        run: lune run test.luau
