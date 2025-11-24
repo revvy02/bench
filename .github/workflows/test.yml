@@ -1,0 +1,36 @@
+name: Test
+
+on:
+  push:
+    branches:
+      - "**"
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install mise
+        uses: jdx/mise-action@v2
+
+      - name: Install Pesde dependencies
+        run: pesde install
+
+      - name: Setup lune PATH
+        run: |
+          # Pesde installs lune to ~/.pesde/engines but doesn't add it to PATH
+          # We need to manually add it for the test script
+          echo "$HOME/.pesde/engines/github/lune-org/lune/0.10.4" >> $GITHUB_PATH
+
+      - name: Run tests
+        env:
+          JEST_RODEO_API_KEY: ${{ secrets.JEST_RODEO_API_KEY }}
+        run: lune run .lune/test.luau

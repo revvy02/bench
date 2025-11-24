@@ -1,5 +1,8 @@
 # Bench
 
+[![Lint](https://github.com/revvy02/bench/actions/workflows/lint.yml/badge.svg)](https://github.com/revvy02/bench/actions/workflows/lint.yml)
+[![Test](https://github.com/revvy02/bench/actions/workflows/test.yml/badge.svg)](https://github.com/revvy02/bench/actions/workflows/test.yml)
+
 A high-performance, composable benchmarking library for Luau with minimal overhead and hierarchical performance tracking.
 
 ## Overview
