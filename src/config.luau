@@ -99,7 +99,7 @@ local STAT_METADATA: { [string]: StatMetadata } = {
 	["time.cv"] = {
 		name = "time.cv",
 		type = "percent",
-		verboseOnly = false,
+		verboseOnly = true,
 		polarity = "lower_better",
 		ratioLabels = {
 			better = "more stable",
@@ -109,7 +109,7 @@ local STAT_METADATA: { [string]: StatMetadata } = {
 	["time.mad"] = {
 		name = "time.mad",
 		type = "time",
-		verboseOnly = false,
+		verboseOnly = true,
 		polarity = "lower_better",
 		ratioLabels = {
 			better = "more stable",
@@ -119,11 +119,21 @@ local STAT_METADATA: { [string]: StatMetadata } = {
 	["time.mild_outliers"] = {
 		name = "time.mild_outliers",
 		type = "count",
-		verboseOnly = false,
+		verboseOnly = true,
 		polarity = "lower_better",
 		ratioLabels = {
 			better = "fewer outliers",
 			worse = "more outliers",
+		},
+	},
+	["time.total"] = {
+		name = "time.total",
+		type = "time",
+		verboseOnly = false,
+		polarity = "lower_better",
+		ratioLabels = {
+			better = "faster",
+			worse = "slower",
 		},
 	},
 
@@ -201,7 +211,7 @@ local STAT_METADATA: { [string]: StatMetadata } = {
 	["mem.cv"] = {
 		name = "mem.cv",
 		type = "percent",
-		verboseOnly = false,
+		verboseOnly = true,
 		polarity = "lower_better",
 		ratioLabels = {
 			better = "more stable",
@@ -211,7 +221,7 @@ local STAT_METADATA: { [string]: StatMetadata } = {
 	["mem.mad"] = {
 		name = "mem.mad",
 		type = "bytes",
-		verboseOnly = false,
+		verboseOnly = true,
 		polarity = "lower_better",
 		ratioLabels = {
 			better = "more stable",
@@ -221,11 +231,21 @@ local STAT_METADATA: { [string]: StatMetadata } = {
 	["mem.mild_outliers"] = {
 		name = "mem.mild_outliers",
 		type = "count",
-		verboseOnly = false,
+		verboseOnly = true,
 		polarity = "lower_better",
 		ratioLabels = {
 			better = "fewer outliers",
 			worse = "more outliers",
+		},
+	},
+	["mem.total"] = {
+		name = "mem.total",
+		type = "bytes",
+		verboseOnly = false,
+		polarity = "lower_better",
+		ratioLabels = {
+			better = "less",
+			worse = "more",
 		},
 	},
 
@@ -233,56 +253,58 @@ local STAT_METADATA: { [string]: StatMetadata } = {
 	["time.p_value"] = {
 		name = "time.p_value",
 		type = "ratio",
-		verboseOnly = false,
+		verboseOnly = true,
 		polarity = "neutral",
 	},
 	["time.is_practically_significant"] = {
 		name = "time.is_practically_significant",
 		type = "count",
-		verboseOnly = false,
+		verboseOnly = true,
 		polarity = "neutral",
 	},
 	["mem.p_value"] = {
 		name = "mem.p_value",
 		type = "ratio",
-		verboseOnly = false,
+		verboseOnly = true,
 		polarity = "neutral",
 	},
 	["mem.is_practically_significant"] = {
 		name = "mem.is_practically_significant",
 		type = "count",
-		verboseOnly = false,
+		verboseOnly = true,
 		polarity = "neutral",
 	},
 }
 
--- Display order for stats (time stats first with p50 & avg prioritized, then mem, then count)
+-- Display order for stats (non-verbose first, then verbose-only)
 local STAT_DISPLAY_ORDER: { string } = {
-	-- Time stats (p50 and avg first, then rest)
+	-- Time stats (non-verbose: p50, avg, total first)
 	"time.p50",
 	"time.avg",
-	"time.cv",
-	"time.mad",
-	"time.mild_outliers",
+	"time.total",
 	"time.min",
 	"time.max",
 	"time.p10",
 	"time.p90",
 	"time.std",
+	"time.cv",
+	"time.mad",
+	"time.mild_outliers",
 
-	-- Memory stats (p50 and avg first, then rest)
+	-- Memory stats (non-verbose: p50, avg, total first)
 	"mem.p50",
 	"mem.avg",
-	"mem.cv",
-	"mem.mad",
-	"mem.mild_outliers",
+	"mem.total",
 	"mem.min",
 	"mem.max",
 	"mem.p10",
 	"mem.p90",
 	"mem.std",
+	"mem.cv",
+	"mem.mad",
+	"mem.mild_outliers",
 
-	-- Comparison significance stats
+	-- Comparison significance stats (verbose-only)
 	"time.p_value",
 	"time.is_practically_significant",
 	"mem.p_value",

@@ -48,6 +48,7 @@ local STAT_SUFFIXES = {
 	"severe_outliers",
 	"is_stable",
 	"is_precise",
+	"total",
 }
 
 -- Compute statistics from array of values with a given prefix (e.g., "time", "mem")
@@ -68,6 +69,12 @@ local function compute_stats(values: { number }, prefix: string, target_cv: numb
 		target_cv = target_cv,
 		target_precision = target_precision,
 	})
+
+	-- Calculate total (sum of all values)
+	local total = 0
+	for _, v in values do
+		total += v
+	end
 
 	-- Convert to flat key-value format with prefix
 	return {
@@ -90,6 +97,7 @@ local function compute_stats(values: { number }, prefix: string, target_cv: numb
 		[prefix .. ".severe_outliers"] = stats.severe_outliers,
 		[prefix .. ".is_stable"] = if stats.is_stable then 1 else 0,
 		[prefix .. ".is_precise"] = if stats.is_precise then 1 else 0,
+		[prefix .. ".total"] = total,
 	}
 end
 

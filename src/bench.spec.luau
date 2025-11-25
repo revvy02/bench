@@ -878,16 +878,19 @@ describe("bench", function()
 			local formatted = bench.cli(analysis, { verbose = true })
 
 			expect(formatted).toEqual(expect.any("string"))
-			-- Verbose should show time.min, time.max, time.avg, time.p10, time.p50, time.p90
+			-- Verbose should show all stats including min, max, p10, p90, cv, mad
 			expect(formatted:match("time%.min:")).never.toBeNil()
 			expect(formatted:match("time%.max:")).never.toBeNil()
 			expect(formatted:match("time%.avg:")).never.toBeNil()
 			expect(formatted:match("time%.p10:")).never.toBeNil()
 			expect(formatted:match("time%.p50:")).never.toBeNil()
 			expect(formatted:match("time%.p90:")).never.toBeNil()
+			expect(formatted:match("time%.cv:")).never.toBeNil()
+			expect(formatted:match("time%.mad:")).never.toBeNil()
+			expect(formatted:match("time%.total:")).never.toBeNil()
 		end)
 
-		it("should show only avg and p50 in normal mode", function()
+		it("should show only avg, p50, and total in normal mode", function()
 			bench.mark("task")
 			task.wait(0.01)
 			bench.done()
@@ -898,12 +901,16 @@ describe("bench", function()
 			local formatted = bench.cli(analysis, { verbose = false })
 
 			expect(formatted).toEqual(expect.any("string"))
-			-- Normal mode should show only time.avg and time.p50
+			-- Normal mode should show time.avg, time.p50, time.total, and count
 			expect(formatted:match("time%.avg:")).never.toBeNil()
 			expect(formatted:match("time%.p50:")).never.toBeNil()
-			-- Should not show time.p10 and time.p90
+			expect(formatted:match("time%.total:")).never.toBeNil()
+			expect(formatted:match("count:")).never.toBeNil()
+			-- Should not show time.p10, time.p90, time.cv, time.mad
 			expect(formatted:match("time%.p10:")).toBeNil()
 			expect(formatted:match("time%.p90:")).toBeNil()
+			expect(formatted:match("time%.cv:")).toBeNil()
+			expect(formatted:match("time%.mad:")).toBeNil()
 		end)
 	end)
 
@@ -1147,8 +1154,10 @@ describe("bench", function()
 			local formatted = bench.cli(analysis)
 
 			expect(formatted).toEqual(expect.any("string"))
+			-- Non-verbose should show mem.avg, mem.p50, mem.total
 			expect(formatted:match("mem%.avg")).never.toBeNil()
 			expect(formatted:match("mem%.p50")).never.toBeNil()
+			expect(formatted:match("mem%.total")).never.toBeNil()
 		end)
 
 		it("should handle negative memory deltas from GC", function()
