@@ -380,17 +380,19 @@ local function ANALYZE(sample: Sample, options: AnalyzeOptions?): SampleStats
 	-- Calculate MAD (median absolute deviation)
 	local mad = calculate_mad(sample, median)
 
-	-- Calculate mean (Kahan summation)
+	-- Calculate mean (Neumaier summation)
 	local sum = 0
 	local correction = 0
 	for _, value in sample do
-		local adjusted_value = value - correction
-		local target = sum + adjusted_value
+		local target = sum + value
 
-		correction = (target - sum) - adjusted_value
-		sum = target            
+		if math.abs(sum) >= math.abs(value) then
+			correction += (sum - target) + value
+		else
+			correction += (value - target) + sum
+		end
 	end
-	local mean = sum / n
+	local mean = (sum + correction) / n
 
 	-- Calculate variance and standard deviation
 	local variance_sum = 0
