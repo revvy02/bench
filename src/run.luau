@@ -20,23 +20,23 @@ export type ConvergenceConfig = {
 	target_precision: number?, -- default: 0.05 (±5%)
 }
 
-export type TemplateConfig<T> = {
+export type TemplateConfig = {
 	verbose: boolean?,
 	track_memory: boolean?,
-	baselines: { [string]: (T) -> () },
-	comparisons: { [string]: (T) -> () }?,
-	params: (() -> T)?,
-	before_all: () -> ()?,
-	after_all: () -> ()?,
-	before_each: () -> ()?,
-	after_each: () -> ()?,
+	baselines: { [string]: (any) -> ...any },
+	comparisons: { [string]: (any) -> ...any }?,
+	params: (() -> any)?,
+	before_all: (() -> ())?,
+	after_all: (() -> ())?,
+	before_each: (() -> ())?,
+	after_each: (() -> ())?,
 	warmup: WarmupConfig?,
 	convergence: ConvergenceConfig?,
-	min_duration: number?, -- default: 3.0 (seconds), minimum duration before convergence check
-	max_duration: number?, -- default: nil (no limit), maximum duration in seconds before auto-stop
-	batch: boolean?, -- default: false, run each baseline/comparison to completion sequentially instead of interleaving
-	score: ((analyzer.Stats) -> number)?, -- default: (stats) -> stats["time.p50"], used for race mode
-	race: boolean?, -- default: true, if false disables race mode even with multiple baselines
+	min_duration: number?,
+	max_duration: number?,
+	batch: boolean?,
+	score: ((analyzer.Stats) -> number)?,
+	race: boolean?,
 }
 
 export type TemplateResult = {
@@ -383,7 +383,7 @@ local function sort_and_format_results(results: { TemplateResult }, score_fn: (a
 	end
 end
 
-local function BENCH_template<T>(benchmark: TemplateConfig<T>)
+local function BENCH_template(benchmark: TemplateConfig)
 	-- Parse configuration
 	local baselines = benchmark.baselines
 	local comparisons = benchmark.comparisons
