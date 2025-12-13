@@ -20,12 +20,12 @@ export type ConvergenceConfig = {
 	target_precision: number?, -- default: 0.05 (±5%)
 }
 
-export type TemplateConfig = {
+export type TemplateConfig<T> = {
 	verbose: boolean?,
 	track_memory: boolean?,
-	baselines: { [string]: (any) -> () },
-	comparisons: { [string]: (any) -> () }?,
-	params: () -> ()?,
+	baselines: { [string]: (T) -> () },
+	comparisons: { [string]: (T) -> () }?,
+	params: (() -> T)?,
 	before_all: () -> ()?,
 	after_all: () -> ()?,
 	before_each: () -> ()?,
@@ -57,12 +57,8 @@ local function default_score(stats: analyzer.Stats): number
 	return stats["time.p50"] or math.huge
 end
 
---
--- HELPER FUNCTIONS
---
-
 -- Utility: Run a single benchmark with lifecycle hooks
-local function run_single_benchmark(name: string, fn: (any) -> (), params: (() -> ())?, before_each: (() -> ())?, after_each: (() -> ())?)
+local function run_single_benchmark<T>(name: string, fn: (T) -> (), params: (() -> T)?, before_each: (() -> ())?, after_each: (() -> ())?)
 	if before_each then
 		before_each()
 	end
@@ -76,7 +72,7 @@ local function run_single_benchmark(name: string, fn: (any) -> (), params: (() -
 end
 
 -- Utility: Run a set of benchmarks
-local function run_benchmark_set(benchmarks: { [string]: (any) -> () }, params: (() -> ())?, before_each: (() -> ())?, after_each: (() -> ())?)
+local function run_benchmark_set<T>(benchmarks: { [string]: (T) -> () }, params: (() -> T)?, before_each: (() -> ())?, after_each: (() -> ())?)
 	for name, fn in benchmarks do
 		run_single_benchmark(name, fn, params, before_each, after_each)
 	end
@@ -157,12 +153,12 @@ local function should_continue_duration(
 end
 
 -- Execution: Run warmup phase
-local function run_warmup(
-	baselines: { [string]: (any, typeof(mark), typeof(done)) -> () },
-	comparisons: { [string]: (any, typeof(mark), typeof(done)) -> () }?,
+local function run_warmup<T>(
+	baselines: { [string]: (T) -> () },
+	comparisons: { [string]: (T) -> () }?,
 	config: {
 		iterations: number,
-		params: (() -> ())?,
+		params: (() -> T)?,
 		before_each: (() -> ())?,
 		after_each: (() -> ())?,
 	}
@@ -178,13 +174,13 @@ local function run_warmup(
 end
 
 -- Execution: Run benchmarks with unified logic for both batch and interleaved modes
-local function run_benchmarks(
-	baselines: { [string]: (any, typeof(mark), typeof(done)) -> () },
-	comparisons: { [string]: (any, typeof(mark), typeof(done)) -> () }?,
+local function run_benchmarks<T>(
+	baselines: { [string]: (T) -> () },
+	comparisons: { [string]: (T) -> () }?,
 	config: {
 		batch: boolean,
 		convergence_enabled: boolean,
-		params: (() -> ())?,
+		params: (() -> T)?,
 		before_each: (() -> ())?,
 		after_each: (() -> ())?,
 		min_iterations: number,
@@ -387,11 +383,7 @@ local function sort_and_format_results(results: { TemplateResult }, score_fn: (a
 	end
 end
 
---
--- MAIN TEMPLATE FUNCTION
---
-
-local function BENCH_template(benchmark: TemplateConfig)
+local function BENCH_template<T>(benchmark: TemplateConfig<T>)
 	-- Parse configuration
 	local baselines = benchmark.baselines
 	local comparisons = benchmark.comparisons

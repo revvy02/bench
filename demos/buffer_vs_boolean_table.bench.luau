@@ -13,7 +13,7 @@ return bench.run({
 		iterations = 100,
 	},
 	params = function()
-		local sparse_indices = table.create(N)
+		local sparse_indices = table.create(N) :: { number }
 		for i = 1, N do
 			sparse_indices[i] = (i * 7) % N
 		end
