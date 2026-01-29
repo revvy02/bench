@@ -25,6 +25,13 @@ export type Analysis = {
 	memories: { number }?,
 }
 
+export type PrunedAnalysis = {
+	label: string,
+	stats: Stats,
+	comparisons: { [string]: ComparisonData? }?,
+	children: { [string]: PrunedAnalysis }?,
+}
+
 local analyzer = {}
 
 -- Constants
@@ -255,7 +262,25 @@ local function BENCH_COMPARE(primary: Analysis, comparisons: { [string]: Analysi
 	}
 end
 
+local function BENCH_PRUNE(analysis: Analysis): PrunedAnalysis
+	local pruned_children: { [string]: PrunedAnalysis }? = nil
+	if analysis.children then
+		pruned_children = {}
+		for label, child in analysis.children do
+			pruned_children[label] = BENCH_PRUNE(child)
+		end
+	end
+
+	return {
+		label = analysis.label,
+		stats = analysis.stats,
+		comparisons = analysis.comparisons,
+		children = pruned_children,
+	}
+end
+
 analyzer.analyze = BENCH_ANALYZE
 analyzer.compare = BENCH_COMPARE
+analyzer.prune = BENCH_PRUNE
 
 return analyzer

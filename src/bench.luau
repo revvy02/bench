@@ -21,6 +21,7 @@ bench.abort = profiler.abort
 
 bench.analyze = analyzer.analyze
 bench.compare = analyzer.compare
+bench.prune = analyzer.prune
 
 bench.cli = cli
 bench.run = run
