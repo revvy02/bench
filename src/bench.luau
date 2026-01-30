@@ -18,6 +18,7 @@ bench.on = profiler.on
 bench.off = profiler.off
 bench.dump = profiler.dump
 bench.abort = profiler.abort
+bench.debug = profiler.debug
 
 bench.analyze = analyzer.analyze
 bench.compare = analyzer.compare

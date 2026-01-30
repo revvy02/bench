@@ -27,6 +27,7 @@ export type Dump = {
 
 local ON = false
 local TRACK_MEMORY = false
+local DEBUG = true
 local MAX_RESULTS: number
 local MAX_DEPTH: number
 
@@ -229,6 +230,10 @@ local function PROFILER_OFF(): { [string]: Dump }?
 end
 
 local function PROFILER_MARK(label: string)
+	if DEBUG then
+		debug.profilebegin(label)
+	end
+
 	if not ON then
 		return
 	end
@@ -243,6 +248,10 @@ local function PROFILER_MARK(label: string)
 end
 
 local function PROFILER_DONE()
+	if DEBUG then
+		debug.profileend()
+	end
+
 	if not ON then
 		return
 	end
@@ -293,6 +302,10 @@ local function PROFILER_RAW()
 	}
 end
 
+local function PROFILER_DEBUG(enabled: boolean)
+	DEBUG = enabled
+end
+
 return {
 	on = PROFILER_ON,
 	off = PROFILER_OFF,
@@ -302,4 +315,5 @@ return {
 	peek = PROFILER_PEEK,
 	abort = PROFILER_ABORT,
 	raw = PROFILER_RAW,
+	debug = PROFILER_DEBUG,
 }
