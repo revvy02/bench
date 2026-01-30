@@ -84,7 +84,18 @@ local function dump_internal(update_index: boolean): { [string]: Dump }?
 		start_mem: number?,
 	}
 	local node_stack: { StackEntry } = {}
-	local level = 0 -- Compute level on-the-fly during reconstruction
+
+	-- Compute starting level by replaying events before start_i
+	-- This fixes the bug where dump() at non-zero level with start_i > 1
+	-- would incorrectly start level tracking at 0
+	local level = 0
+	for i = 1, start_i - 1 do
+		if labels[i] then
+			level += 1
+		else
+			level -= 1
+		end
+	end
 
 	for i = start_i, end_i do
 		local label = labels[i]

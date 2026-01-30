@@ -39,6 +39,7 @@ describe("bench", function()
 	beforeEach(function()
 		-- Reset bench state before each test
 		bench.off()
+		bench.debug(false)
 	end)
 
 	describe("on/off", function()
@@ -1049,6 +1050,176 @@ describe("bench", function()
 			expect(formatted).toEqual(expect.any("string"))
 			expect(formatted:match("task")).never.toBeNil()
 			expect(formatted:match("vs baseline:")).never.toBeNil()
+		end)
+	end)
+
+	describe("level tracking bug", function()
+		beforeEach(function()
+			bench.on()
+		end)
+
+		it("should correctly track level when dump is called multiple times at non-zero level", function()
+			-- This test reproduces the bug where dump() at a non-zero level
+			-- with start_i > 1 incorrectly starts level tracking at 0
+			bench.mark("outer")
+
+			-- First inner mark/done/dump cycle
+			bench.mark("inner1")
+			bench.done()
+
+			local dump1 = bench.dump()
+			assert(dump1)
+			expect(dump1.inner1).never.toBeNil()
+			expect(#dump1.inner1.durations).toBe(1)
+
+			-- Second inner mark/done/dump cycle (BUG: this should work but doesn't)
+			bench.mark("inner2")
+			bench.done()
+
+			local dump2 = bench.dump()
+			assert(dump2)
+			-- This fails with the bug: inner2 is not captured because level tracking is wrong
+			expect(dump2.inner2).never.toBeNil()
+			expect(#dump2.inner2.durations).toBe(1)
+
+			bench.done() -- close outer
+		end)
+
+		it("should handle multiple dumps at different nested levels", function()
+			bench.mark("level1")
+			bench.mark("level2")
+
+			-- Dump at level 2
+			bench.mark("task_a")
+			bench.done()
+			local dump_level2 = bench.dump()
+			assert(dump_level2)
+			expect(dump_level2.task_a).never.toBeNil()
+
+			-- Another dump at level 2
+			bench.mark("task_b")
+			bench.done()
+			local dump_level2_again = bench.dump()
+			assert(dump_level2_again)
+			expect(dump_level2_again.task_b).never.toBeNil()
+			expect(dump_level2_again.task_a).toBeNil() -- already dumped
+
+			bench.done() -- close level2
+			bench.done() -- close level1
+		end)
+	end)
+
+	describe("signal handler pattern", function()
+		beforeEach(function()
+			bench.on()
+		end)
+
+		it("should handle signal fire pattern with nested handlers", function()
+			-- Simulates the user's signal handler pattern:
+			-- mark(signalName) -> loop over handlers -> mark(handlerLabel) -> done() -> done() -> dump()
+
+			local function simulateSignalFire(signalName: string, handlers: { string })
+				bench.mark(signalName)
+
+				for _, handlerLabel in handlers do
+					bench.mark(handlerLabel)
+					-- Simulate handler work
+					bench.done()
+				end
+
+				bench.done()
+
+				local dumps = bench.dump()
+				return dumps and dumps[signalName]
+			end
+
+			-- First signal fire
+			local dump1 = simulateSignalFire("PlayerAdded", { "handler1", "handler2" })
+			assert(dump1)
+			expect(dump1).never.toBeNil()
+			expect(dump1.label).toBe("PlayerAdded")
+			expect(dump1.children).never.toBeNil()
+			expect(dump1.children.handler1).never.toBeNil()
+			expect(dump1.children.handler2).never.toBeNil()
+
+			-- Second signal fire (same signal)
+			local dump2 = simulateSignalFire("PlayerAdded", { "handler1", "handler2" })
+			assert(dump2)
+			expect(dump2).never.toBeNil()
+			expect(dump2.label).toBe("PlayerAdded")
+			expect(dump2.children.handler1).never.toBeNil()
+			expect(dump2.children.handler2).never.toBeNil()
+		end)
+
+		it("should handle reentrant signal fires", function()
+			-- Simulates a signal handler that triggers another signal
+			-- SignalA fires -> handler triggers SignalB -> SignalB completes -> SignalA continues
+
+			bench.mark("SignalA")
+			bench.mark("handlerA1")
+			-- handlerA1 triggers SignalB
+			do
+				bench.mark("SignalB")
+				bench.mark("handlerB1")
+				bench.done()
+				bench.done()
+
+				-- Dump SignalB result (at level 2, inside SignalA/handlerA1)
+				local signalBDump = bench.dump()
+				assert(signalBDump)
+				expect(signalBDump.SignalB).never.toBeNil()
+				expect(signalBDump.SignalB.children.handlerB1).never.toBeNil()
+			end
+			bench.done() -- handlerA1
+
+			bench.mark("handlerA2")
+			bench.done()
+
+			bench.done() -- SignalA
+
+			-- Dump SignalA result
+			local signalADump = bench.dump()
+			assert(signalADump)
+			expect(signalADump.SignalA).never.toBeNil()
+			expect(signalADump.SignalA.children.handlerA1).never.toBeNil()
+			expect(signalADump.SignalA.children.handlerA2).never.toBeNil()
+		end)
+
+		it("should handle dump inside outer mark without losing outer context", function()
+			-- This tests the specific issue: dumping inside a mark should not
+			-- cause the outer mark's children to appear at root level
+
+			bench.mark("outerSignal")
+
+			bench.mark("innerHandler")
+			bench.done()
+
+			-- Dump while still inside outerSignal
+			local innerDump = bench.dump()
+			assert(innerDump)
+			expect(innerDump.innerHandler).never.toBeNil()
+			-- outerSignal should NOT appear here (it's not complete)
+			expect(innerDump.outerSignal).toBeNil()
+
+			bench.mark("anotherHandler")
+			bench.done()
+
+			-- Another dump inside outerSignal
+			local innerDump2 = bench.dump()
+			assert(innerDump2)
+			expect(innerDump2.anotherHandler).never.toBeNil()
+			-- Previous handler should not reappear
+			expect(innerDump2.innerHandler).toBeNil()
+
+			bench.done() -- close outerSignal
+
+			-- Final dump should have outerSignal with its children
+			local outerDump = bench.dump()
+			assert(outerDump)
+			expect(outerDump.outerSignal).never.toBeNil()
+			expect(outerDump.outerSignal.children).never.toBeNil()
+			expect(outerDump.outerSignal.children.innerHandler).never.toBeNil()
+			expect(outerDump.outerSignal.children.anotherHandler).never.toBeNil()
 		end)
 	end)
 
