@@ -1223,6 +1223,66 @@ describe("bench", function()
 		end)
 	end)
 
+	describe("recursive merge bug", function()
+		beforeEach(function()
+			bench.on()
+		end)
+
+		it("should merge grandchildren durations across multiple calls", function()
+			-- This test reproduces the bug where grandchildren (3+ levels deep)
+			-- get overwritten instead of merged when same labels are used multiple times
+
+			-- Simulate multiple "frames" with nested structure:
+			-- outer -> inner -> handler
+			for _ = 1, 5 do
+				bench.mark("outer")
+				bench.mark("inner")
+				bench.mark("handler")
+				bench.done()
+				bench.done()
+				bench.done()
+			end
+
+			local dump = bench.dump()
+			assert(dump)
+
+			-- Outer should have 5 durations (merged correctly)
+			expect(dump.outer).never.toBeNil()
+			expect(#dump.outer.durations).toBe(5)
+
+			-- Inner (child) should have 5 durations (merged correctly)
+			expect(dump.outer.children.inner).never.toBeNil()
+			expect(#dump.outer.children.inner.durations).toBe(5)
+
+			-- Handler (grandchild) should have 5 durations
+			-- BUG: Currently only has 1 because grandchildren are overwritten instead of merged
+			expect(dump.outer.children.inner.children.handler).never.toBeNil()
+			expect(#dump.outer.children.inner.children.handler.durations).toBe(5)
+		end)
+
+		it("should merge deeply nested children across multiple calls", function()
+			-- Test 4 levels deep
+			for _ = 1, 3 do
+				bench.mark("level1")
+				bench.mark("level2")
+				bench.mark("level3")
+				bench.mark("level4")
+				bench.done()
+				bench.done()
+				bench.done()
+				bench.done()
+			end
+
+			local dump = bench.dump()
+			assert(dump)
+
+			expect(#dump.level1.durations).toBe(3)
+			expect(#dump.level1.children.level2.durations).toBe(3)
+			expect(#dump.level1.children.level2.children.level3.durations).toBe(3)
+			expect(#dump.level1.children.level2.children.level3.children.level4.durations).toBe(3)
+		end)
+	end)
+
 	describe("memory tracking", function()
 		it("should not track memory when disabled (default)", function()
 			bench.on()

@@ -45,6 +45,29 @@ local DEFAULT_CONFIG: Config = {
 	expected_depth = 256,
 }
 
+-- Recursively merge source Dump node into target Dump node
+local function merge_dump_nodes(target: Dump, source: Dump)
+	-- Merge durations
+	for _, dur in source.durations do
+		table.insert(target.durations, dur)
+	end
+	-- Merge memories
+	if target.memories and source.memories then
+		for _, mem in source.memories do
+			table.insert(target.memories, mem)
+		end
+	end
+	-- Recursively merge children
+	for child_label, child_node in source.children do
+		local existing_child = target.children[child_label]
+		if existing_child then
+			merge_dump_nodes(existing_child, child_node)
+		else
+			target.children[child_label] = child_node
+		end
+	end
+end
+
 -- update_index: if true, updates last_dump_index (destructive read like dump)
 --               if false, leaves last_dump_index unchanged (non-destructive read like peek)
 local function dump_internal(update_index: boolean): { [string]: Dump }?
@@ -140,36 +163,7 @@ local function dump_internal(update_index: boolean): { [string]: Dump }?
 
 					if existing then
 						-- Merge with existing node (multiple calls to same label)
-						for _, dur in entry.node.durations do
-							table.insert(existing.durations, dur)
-						end
-						if TRACK_MEMORY and existing.memories and entry.node.memories then
-							for _, mem in entry.node.memories do
-								table.insert(existing.memories, mem)
-							end
-						end
-						-- Merge children recursively
-						for child_label, child_node in entry.node.children do
-							local existing_child = existing.children[child_label]
-							if existing_child then
-								-- Merge durations
-								for _, dur in child_node.durations do
-									table.insert(existing_child.durations, dur)
-								end
-								-- Merge memories
-								if TRACK_MEMORY and existing_child.memories and child_node.memories then
-									for _, mem in child_node.memories do
-										table.insert(existing_child.memories, mem)
-									end
-								end
-								-- Recursively merge deeper children
-								for grandchild_label, grandchild_node in child_node.children do
-									existing_child.children[grandchild_label] = grandchild_node
-								end
-							else
-								existing.children[child_label] = child_node
-							end
-						end
+						merge_dump_nodes(existing, entry.node)
 					else
 						-- Add new node
 						parent_children[entry.node.label] = entry.node
