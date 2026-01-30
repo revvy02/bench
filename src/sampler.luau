@@ -391,6 +391,7 @@ local function ANALYZE(sample: Sample, options: AnalyzeOptions?): SampleStats
 		else
 			correction += (value - target) + sum
 		end
+		sum = target
 	end
 	local mean = (sum + correction) / n
 
