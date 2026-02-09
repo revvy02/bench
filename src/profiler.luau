@@ -48,13 +48,15 @@ local DEFAULT_CONFIG: Config = {
 -- Recursively merge source Dump node into target Dump node
 local function merge_dump_nodes(target: Dump, source: Dump)
 	-- Merge durations
-	for _, dur in source.durations do
-		table.insert(target.durations, dur)
+	local source_dur_len = #source.durations
+	if source_dur_len > 0 then
+		table.move(source.durations, 1, source_dur_len, #target.durations + 1, target.durations)
 	end
 	-- Merge memories
 	if target.memories and source.memories then
-		for _, mem in source.memories do
-			table.insert(target.memories, mem)
+		local source_mem_len = #source.memories
+		if source_mem_len > 0 then
+			table.move(source.memories, 1, source_mem_len, #target.memories + 1, target.memories)
 		end
 	end
 	-- Recursively merge children
@@ -108,26 +110,16 @@ local function dump_internal(update_index: boolean): { [string]: Dump }?
 	}
 	local node_stack: { StackEntry } = {}
 
-	-- Compute starting level by replaying events before start_i
-	-- This fixes the bug where dump() at non-zero level with start_i > 1
-	-- would incorrectly start level tracking at 0
+	-- Single loop: track level from 1, process only events in [start_i, end_i]
 	local level = 0
-	for i = 1, start_i - 1 do
-		if labels[i] then
-			level += 1
-		else
-			level -= 1
-		end
-	end
-
-	for i = start_i, end_i do
+	for i = 1, end_i do
 		local label = labels[i]
 		if label then
 			-- MARK event - increment level
 			level += 1
 
-			-- Only process events at depth > current level
-			if level > current_level then
+			-- Only process events in range [start_i, end_i] at depth > current level
+			if i >= start_i and level > current_level then
 				-- Create new node and push onto stack
 				local new_node: Dump = {
 					label = label,
@@ -143,8 +135,8 @@ local function dump_internal(update_index: boolean): { [string]: Dump }?
 				})
 			end
 		else
-			-- DONE event - only process if at depth > current level
-			if level > current_level then
+			-- DONE event - only process if in range and at depth > current level
+			if i >= start_i and level > current_level then
 				if #node_stack > 0 then
 					local entry = table.remove(node_stack) :: StackEntry
 
