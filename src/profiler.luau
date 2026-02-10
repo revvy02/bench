@@ -27,7 +27,7 @@ export type Dump = {
 
 local ON = false
 local TRACK_MEMORY = false
-local DEBUG = true
+local DEBUG = false
 local MAX_RESULTS: number
 local MAX_DEPTH: number
 
